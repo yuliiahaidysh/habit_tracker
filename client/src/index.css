@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  background-color: white;
+}
+
+body {
+  @apply bg-white text-slate-900 antialiased;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+}
+
+/* Enforce light theme: prevent any system dark mode from applying */
+@media (prefers-color-scheme: dark) {
+  html,
+  body {
+    background-color: white;
+    color: #111827;
+  }
+}
+
+/* Typography hierarchy */
+h1 {
+  @apply text-2xl font-bold;
+}
+
+h2 {
+  @apply text-xl font-semibold;
+}
+
+h3 {
+  @apply text-lg font-semibold;
+}
+
+/* Interactive elements: consistent focus & hover states */
+button,
+input,
+textarea,
+select {
+  transition-property: background-color, border-color, box-shadow, color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Focus ring utilities for better accessibility */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-600;
+}

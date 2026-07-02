@@ -1,0 +1,23 @@
+# Dependencies & Build Artifacts
+node_modules/
+dist/
+build/
+vendor/
+
+# Environment Variables & Secrets
+.env
+*.env.*
+*.key
+*.pem
+secrets/
+
+# Caches & System Logs
+.cache/
+logs/
+*.log
+__pycache__/
+.pytest_cache/
+.DS_Store
+
+# Large documentation or historical archives
+docs/deprecated/

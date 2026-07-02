@@ -1,0 +1,25 @@
+{
+  "name": "habit-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Multi-user habit tracker with streaks, SSO, and real-time milestone notifications",
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,client -c blue,magenta \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:server": "npm run dev --workspace server",
+    "dev:client": "npm run dev --workspace client",
+    "build": "npm run build --workspace server && npm run build --workspace client",
+    "test": "npm run test --workspace server",
+    "prisma:migrate": "npm run prisma:migrate --workspace server",
+    "prisma:generate": "npm run prisma:generate --workspace server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

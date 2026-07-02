@@ -1,0 +1,69 @@
+// Prisma schema for the Habit Tracker.
+// SQLite has no native enums, so `Habit.status` is a String constrained at the app layer
+// (see server/src/types.ts). Dates that represent a calendar day (startDate, CheckIn.date)
+// are stored as "YYYY-MM-DD" strings so streak math never depends on timezone offsets.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @default(cuid())
+  provider       String // "google" | "github"
+  providerUserId String
+  email          String?
+  displayName    String
+  avatarUrl      String?
+  createdAt      DateTime @default(now())
+
+  habits Habit[]
+
+  // Identity is (provider, providerUserId) — never email (GitHub may omit it).
+  @@unique([provider, providerUserId])
+}
+
+model Habit {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  startDate   String // "YYYY-MM-DD"
+  status      String   @default("ACTIVE") // ACTIVE | PAUSED | ARCHIVED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user       User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  checkIns   CheckIn[]
+  milestones MilestoneNotification[]
+
+  @@index([userId])
+}
+
+model CheckIn {
+  id        String   @id @default(cuid())
+  habitId   String
+  date      String // "YYYY-MM-DD" in the app timezone
+  createdAt DateTime @default(now())
+
+  habit Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  // One check-in per habit per calendar day.
+  @@unique([habitId, date])
+}
+
+model MilestoneNotification {
+  id        String   @id @default(cuid())
+  habitId   String
+  milestone Int // 3 | 7 | 30
+  createdAt DateTime @default(now())
+
+  habit Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  // A given milestone is recorded (and thus notified) at most once per habit, ever.
+  @@unique([habitId, milestone])
+}
