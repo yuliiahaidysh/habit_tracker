@@ -179,22 +179,22 @@
 ---
 
 ## Phase 13: Documentation & Deliverables
-- [ ] **13.1** — README: "How to run backend" section
-- [ ] **13.2** — README: "How to run frontend" section
-- [ ] **13.3** — README: "How to run tests" section
-- [ ] **13.4** — README: Short API description (endpoints, formats)
-- [ ] **13.5** — README: Google OAuth credential setup instructions
-- [ ] **13.6** — README: GitHub OAuth credential setup instructions
-- [ ] **13.7** — README: WebSocket message format (client → server)
-- [ ] **13.8** — README: Milestone notification rules (3, 7, 30 days)
-- [ ] **13.9** — README: Streak calculation approach and formula
-- [ ] **13.10** — README: Timezone handling (chosen approach and rationale)
-- [ ] **13.11** — README: Habit deletion strategy (cascade vs. block) and rationale
-- [ ] **13.12** — README: Environment variables required (Google OAuth, GitHub OAuth)
-- [ ] **13.13** — (Optional) Create Dockerfile / docker-compose (or document why skipped)
-- [ ] **13.14** — Verify all source code is committed to git
+- [x] **13.1** — README: "How to run backend" section
+- [x] **13.2** — README: "How to run frontend" section
+- [x] **13.3** — README: "How to run tests" section
+- [x] **13.4** — README: Short API description (endpoints, formats)
+- [x] **13.5** — README: Google OAuth credential setup instructions
+- [x] **13.6** — README: GitHub OAuth credential setup instructions
+- [x] **13.7** — README: WebSocket message format (client → server)
+- [x] **13.8** — README: Milestone notification rules (3, 7, 30 days)
+- [x] **13.9** — README: Streak calculation approach and formula
+- [x] **13.10** — README: Timezone handling (chosen approach and rationale)
+- [x] **13.11** — README: Habit deletion strategy (cascade vs. block) and rationale
+- [x] **13.12** — README: Environment variables required (Google OAuth, GitHub OAuth)
+- [x] **13.13** — (Skipped) Docker: This is a local-run test app with SQLite (file-based). Containerization adds complexity without benefit for MVP. Local development uses `npm run dev` to run both backend and frontend. See README "How to Run" section for instructions.
+- [x] **13.14** — Verify all source code is committed to git (All code committed; README.md, TASKS.md, PHASE13_SUMMARY.md staged for final commit)
 
-**Status:** Phase 13 pending. All implementation complete. Ready to document API, OAuth setup, and test commands for final delivery.
+**Status:** Phase 13 COMPLETE (13.1–13.12). Comprehensive README.md with all operational guides, API specs, OAuth setup, WebSocket format, streak logic, timezone strategy, deletion strategy, and environment variables. Docker skipped (local test app). Proceeding to Phase 14 acceptance testing.
 
 ---
 
