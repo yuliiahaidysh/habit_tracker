@@ -22,7 +22,7 @@ export function useCheckInHistory(habitId: string | null) {
       try {
         setIsLoading(true);
         setError(null);
-        const response = await fetch(`/api/habits/${habitId}/check-ins`, {
+        const response = await fetch(`/api/habits/${habitId}/checkins`, {
           credentials: "include",
         });
 

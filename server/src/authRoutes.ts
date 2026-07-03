@@ -25,9 +25,16 @@ function mountProvider(name: "google" | "github", configured: boolean, scope: st
     passport.authenticate(name, {
       failureRedirect: `${env.clientUrl}/login?error=${name}`,
     }),
-    (_req, res) => {
-      // Success: session cookie is set — bounce back to the SPA.
-      res.redirect(env.clientUrl);
+    (req, res) => {
+      // Success: save the session before redirecting to ensure the cookie persists.
+      req.session.save((err) => {
+        if (err) {
+          console.error("Session save error:", err);
+          res.status(500).json({ error: "Session save failed" });
+          return;
+        }
+        res.redirect(env.clientUrl);
+      });
     },
   );
 }

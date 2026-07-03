@@ -13,9 +13,9 @@ interface HabitCardProps {
 export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, onRefresh }: HabitCardProps) {
   const isActive = habit.status === "ACTIVE";
   const [isCheckingIn, setIsCheckingIn] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const { createCheckIn, deleteCheckIn, deleteHabit, error: mutationError } = useHabitMutations();
+  const [isArchiving, setIsArchiving] = useState(false);
+  const [isPausing, setIsPausing] = useState(false);
+  const { createCheckIn, deleteCheckIn, updateHabit, error: mutationError } = useHabitMutations();
 
   const handleCheckIn = async () => {
     setIsCheckingIn(true);
@@ -31,14 +31,23 @@ export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, 
     setIsCheckingIn(false);
   };
 
-  const handleDelete = async () => {
-    setIsDeleting(true);
-    const success = await deleteHabit(habit.id);
+  const handleTogglePause = async () => {
+    setIsPausing(true);
+    const newStatus = habit.status === "ACTIVE" ? "PAUSED" : "ACTIVE";
+    const success = await updateHabit(habit.id, { status: newStatus });
     if (success) {
-      setShowDeleteConfirm(false);
       await onRefresh();
     }
-    setIsDeleting(false);
+    setIsPausing(false);
+  };
+
+  const handleArchive = async () => {
+    setIsArchiving(true);
+    const success = await updateHabit(habit.id, { status: "ARCHIVED" });
+    if (success) {
+      await onRefresh();
+    }
+    setIsArchiving(false);
   };
 
   return (
@@ -49,37 +58,56 @@ export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, 
           className="flex-1 text-left hover:opacity-75 focus:outline-none focus:ring-2 focus:ring-brand-600 focus:ring-offset-2 rounded transition-all"
           title="View habit details"
         >
-          <h3 className="text-base sm:text-lg font-semibold text-slate-900">{habit.name}</h3>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="text-base sm:text-lg font-semibold text-slate-900">{habit.name}</h3>
+            <div
+              className={`px-2 py-0.5 text-xs font-medium rounded-full whitespace-nowrap ${
+                habit.status === "ACTIVE"
+                  ? "bg-emerald-100 text-emerald-700"
+                  : habit.status === "PAUSED"
+                    ? "bg-amber-100 text-amber-700"
+                    : "bg-slate-100 text-slate-600"
+              }`}
+            >
+              {habit.status}
+            </div>
+          </div>
           {habit.description && (
             <p className="text-xs sm:text-sm text-slate-600 mt-1">{habit.description}</p>
           )}
         </button>
         <div className="flex gap-2 flex-shrink-0">
-          <button
-            onClick={onEdit}
-            title="Edit habit"
-            className="px-2 sm:px-2.5 py-1 text-xs font-medium rounded bg-slate-100 text-slate-700 hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-600 focus:ring-offset-2 transition-colors"
-          >
-            Edit
-          </button>
-          <button
-            onClick={() => setShowDeleteConfirm(true)}
-            title="Delete habit"
-            className="px-2 sm:px-2.5 py-1 text-xs font-medium rounded bg-red-100 text-red-700 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-brand-600 focus:ring-offset-2 transition-colors"
-          >
-            Delete
-          </button>
-          <div
-            className={`px-2 sm:px-2.5 py-1 text-xs font-medium rounded-full whitespace-nowrap ${
-              habit.status === "ACTIVE"
-                ? "bg-emerald-100 text-emerald-700"
-                : habit.status === "PAUSED"
-                  ? "bg-amber-100 text-amber-700"
-                  : "bg-slate-100 text-slate-600"
-            }`}
-          >
-            {habit.status}
-          </div>
+          {habit.status !== "ARCHIVED" && (
+            <>
+              <button
+                onClick={onEdit}
+                title="Edit habit"
+                className="px-2 sm:px-2.5 py-1 text-xs font-medium rounded bg-slate-100 text-slate-700 hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-600 focus:ring-offset-2 transition-colors"
+              >
+                Edit
+              </button>
+              <button
+                onClick={handleTogglePause}
+                disabled={isPausing}
+                title={habit.status === "ACTIVE" ? "Pause habit" : "Resume habit"}
+                className={`px-2 sm:px-2.5 py-1 text-xs font-medium rounded focus:outline-none focus:ring-2 focus:ring-brand-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${
+                  habit.status === "ACTIVE"
+                    ? "bg-amber-100 text-amber-700 hover:bg-amber-200"
+                    : "bg-blue-100 text-blue-700 hover:bg-blue-200"
+                }`}
+              >
+                {isPausing ? "Updating…" : habit.status === "ACTIVE" ? "Pause" : "Resume"}
+              </button>
+              <button
+                onClick={handleArchive}
+                disabled={isArchiving}
+                title="Archive habit"
+                className="px-2 sm:px-2.5 py-1 text-xs font-medium rounded bg-red-100 text-red-700 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-brand-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {isArchiving ? "Archiving…" : "Archive"}
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -159,40 +187,6 @@ export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, 
       {mutationError && (
         <div className="mt-3 bg-red-50 border border-red-200 rounded p-2 text-red-800 text-xs">
           {mutationError}
-        </div>
-      )}
-
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-lg max-w-sm w-full">
-            <div className="px-4 sm:px-6 py-4 border-b border-slate-200">
-              <h3 className="text-lg font-semibold text-slate-900">Delete Habit?</h3>
-            </div>
-            <div className="px-4 sm:px-6 py-4">
-              <p className="text-sm text-slate-600 mb-4">
-                Are you sure you want to delete "<strong>{habit.name}</strong>"? This action cannot be undone and will also delete all check-ins for this habit.
-              </p>
-            </div>
-            <div className="px-4 sm:px-6 py-4 border-t border-slate-200 flex gap-3">
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                disabled={isDeleting}
-                className="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDelete}
-                disabled={isDeleting}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-brand-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
-              >
-                {isDeleting && (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                )}
-                {isDeleting ? "Deleting…" : "Delete"}
-              </button>
-            </div>
-          </div>
         </div>
       )}
     </div>

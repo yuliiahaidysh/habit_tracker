@@ -26,7 +26,7 @@ export default function HabitList({
   checkInFilter,
 }: HabitListProps) {
   const { habits, isLoading: habitsLoading, error, refetch } = useHabits();
-  const { todayCheckIns } = useTodayCheckIns(habits);
+  const { todayCheckIns, refetch: refetchTodayCheckIns } = useTodayCheckIns(habits);
 
   const filteredHabits = useMemo(() => {
     return habits.filter((habit) => {
@@ -88,6 +88,11 @@ export default function HabitList({
     );
   }
 
+  const handleRefresh = async () => {
+    await refetch();
+    await refetchTodayCheckIns();
+  };
+
   return (
     <div className="grid gap-3 sm:gap-4">
       {filteredHabits.map((habit) => (
@@ -97,7 +102,7 @@ export default function HabitList({
           todayChecked={todayCheckIns.has(habit.id)}
           onEdit={() => onEditHabit(habit)}
           onViewDetails={() => onViewDetails(habit)}
-          onRefresh={refetch}
+          onRefresh={handleRefresh}
         />
       ))}
     </div>

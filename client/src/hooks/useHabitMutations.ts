@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Habit } from "./useHabits";
 
 interface CreateHabitInput {
@@ -70,8 +70,9 @@ export function useHabitMutations() {
 
   const createCheckIn = async (habitId: string): Promise<boolean> => {
     try {
+      setIsLoading(true);
       setError(null);
-      const response = await fetch(`/api/habits/${habitId}/check-ins`, {
+      const response = await fetch(`/api/habits/${habitId}/checkins`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -88,13 +89,16 @@ export function useHabitMutations() {
       const message = err instanceof Error ? err.message : "Failed to create check-in";
       setError(message);
       return false;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const deleteCheckIn = async (habitId: string, date: string): Promise<boolean> => {
+  const deleteCheckIn = async (habitId: string): Promise<boolean> => {
     try {
+      setIsLoading(true);
       setError(null);
-      const response = await fetch(`/api/habits/${habitId}/check-ins/${date}`, {
+      const response = await fetch(`/api/habits/${habitId}/checkins/today`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -109,6 +113,8 @@ export function useHabitMutations() {
       const message = err instanceof Error ? err.message : "Failed to undo check-in";
       setError(message);
       return false;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -136,7 +142,7 @@ export function useHabitMutations() {
     }
   };
 
-  const clearError = () => setError(null);
+  const clearError = useCallback(() => setError(null), []);
 
   return {
     createHabit,

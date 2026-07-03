@@ -6,17 +6,7 @@ import { prisma } from "./db.js";
 import { computeStreaks } from "./streaks.js";
 import type { User } from "@prisma/client";
 
-// Extend WebSocket to attach authenticated user data.
-declare global {
-  namespace Express {
-    interface Request {
-      sessionID?: string;
-      session?: {
-        passport?: { user: string };
-      };
-    }
-  }
-}
+// Express Request already has sessionID and session from express-session
 
 interface AuthenticatedWebSocket extends WebSocket {
   userId?: string;
@@ -139,7 +129,7 @@ async function detectAndNotifyMilestone(
 ): Promise<void> {
   if (sentMilestones.has(milestoneDay)) return; // Already sent.
 
-  const dates = habit.checkIns.map((ci) => ci.date);
+  const dates = habit.checkIns.map((ci: any) => ci.date);
   const { current } = computeStreaks(dates, today);
 
   if (current >= milestoneDay) {

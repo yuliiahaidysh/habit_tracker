@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch("/auth/user", {
+      const response = await fetch("/api/me", {
         credentials: "include",
       });
 
