@@ -13,21 +13,32 @@ interface HabitCardProps {
 export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, onRefresh }: HabitCardProps) {
   const isActive = habit.status === "ACTIVE";
   const [isCheckingIn, setIsCheckingIn] = useState(false);
-  const { createCheckIn, deleteCheckIn, error: mutationError } = useHabitMutations();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { createCheckIn, deleteCheckIn, deleteHabit, error: mutationError } = useHabitMutations();
 
   const handleCheckIn = async () => {
     setIsCheckingIn(true);
     const success = await createCheckIn(habit.id);
+    if (success) await onRefresh();
     setIsCheckingIn(false);
-    if (success) onRefresh();
   };
 
   const handleUndo = async () => {
     setIsCheckingIn(true);
-    const today = new Date().toISOString().split("T")[0];
-    const success = await deleteCheckIn(habit.id, today);
+    const success = await deleteCheckIn(habit.id);
+    if (success) await onRefresh();
     setIsCheckingIn(false);
-    if (success) onRefresh();
+  };
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    const success = await deleteHabit(habit.id);
+    if (success) {
+      setShowDeleteConfirm(false);
+      await onRefresh();
+    }
+    setIsDeleting(false);
   };
 
   return (
@@ -50,6 +61,13 @@ export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, 
             className="px-2 sm:px-2.5 py-1 text-xs font-medium rounded bg-slate-100 text-slate-700 hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-600 focus:ring-offset-2 transition-colors"
           >
             Edit
+          </button>
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            title="Delete habit"
+            className="px-2 sm:px-2.5 py-1 text-xs font-medium rounded bg-red-100 text-red-700 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-brand-600 focus:ring-offset-2 transition-colors"
+          >
+            Delete
           </button>
           <div
             className={`px-2 sm:px-2.5 py-1 text-xs font-medium rounded-full whitespace-nowrap ${
@@ -141,6 +159,40 @@ export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, 
       {mutationError && (
         <div className="mt-3 bg-red-50 border border-red-200 rounded p-2 text-red-800 text-xs">
           {mutationError}
+        </div>
+      )}
+
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-lg max-w-sm w-full">
+            <div className="px-4 sm:px-6 py-4 border-b border-slate-200">
+              <h3 className="text-lg font-semibold text-slate-900">Delete Habit?</h3>
+            </div>
+            <div className="px-4 sm:px-6 py-4">
+              <p className="text-sm text-slate-600 mb-4">
+                Are you sure you want to delete "<strong>{habit.name}</strong>"? This action cannot be undone and will also delete all check-ins for this habit.
+              </p>
+            </div>
+            <div className="px-4 sm:px-6 py-4 border-t border-slate-200 flex gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-brand-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              >
+                {isDeleting && (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                )}
+                {isDeleting ? "Deleting…" : "Delete"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
