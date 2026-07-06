@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Habit } from "../hooks/useHabits";
 import { useCheckInHistory } from "../hooks/useCheckInHistory";
+import { useSwipeBack } from "../hooks/useSwipeBack";
 import Calendar from "../components/Calendar";
 import HabitFormModal from "../components/HabitFormModal";
 import EmptyState from "../components/EmptyState";
@@ -23,6 +24,8 @@ export default function HabitDetails({ habit, onBack, onRefresh }: HabitDetailsP
   const { deleteHabit, updateHabit, error: mutationError } = useHabitMutations();
 
   const displayStatus = optimisticStatus || habit.status;
+
+  useSwipeBack({ onSwipeBack: onBack });
 
   useEffect(() => {
     const handlePopState = () => {

@@ -42,7 +42,8 @@
       "Bash(echo \"Started dev server with PID $!\")",
       "Bash(lsof -ti:4000)",
       "Bash(grep -E \"\\\\.\\(tsx?|jsx?\\)$\")",
-      "Bash(jq '.id' -r)"
+      "Bash(jq '.id' -r)",
+      "Bash(git stash *)"
     ]
   }
 }

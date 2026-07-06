@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import Header from "../components/Header";
 import HabitList from "../components/HabitList";
 import HabitFormModal from "../components/HabitFormModal";
