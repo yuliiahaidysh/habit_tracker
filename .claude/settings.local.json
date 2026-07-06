@@ -40,7 +40,9 @@
       "Bash(pkill -f \"vite\")",
       "Bash(awk '{print $2}')",
       "Bash(echo \"Started dev server with PID $!\")",
-      "Bash(lsof -ti:4000)"
+      "Bash(lsof -ti:4000)",
+      "Bash(grep -E \"\\\\.\\(tsx?|jsx?\\)$\")",
+      "Bash(jq '.id' -r)"
     ]
   }
 }

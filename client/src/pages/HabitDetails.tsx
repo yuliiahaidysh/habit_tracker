@@ -87,20 +87,24 @@ export default function HabitDetails({ habit, onBack, onRefresh }: HabitDetailsP
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 mb-6 sm:mb-8">
-            <button
-              onClick={() => setIsFormOpen(true)}
-              className="px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-900 text-white rounded-lg font-medium hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-600 focus:ring-offset-2 transition-colors"
-            >
-              Edit Habit
-            </button>
-            <button
-              onClick={handleDeleteHabit}
-              className="px-3 sm:px-4 py-2 text-sm sm:text-base bg-red-100 text-red-700 rounded-lg font-medium hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 transition-colors"
-            >
-              Delete Habit
-            </button>
-          </div>
+          {habit.status !== "Archived" && (
+            <div className="grid grid-cols-2 gap-2 mb-6 sm:mb-8">
+              <button
+                onClick={() => setIsFormOpen(true)}
+                className="px-3 sm:px-4 py-2 text-sm sm:text-base rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors bg-slate-900 text-white hover:bg-slate-800 focus:ring-brand-600"
+                title="Edit this habit"
+              >
+                Edit Habit
+              </button>
+              <button
+                onClick={handleDeleteHabit}
+                className="px-3 sm:px-4 py-2 text-sm sm:text-base rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors bg-red-100 text-red-700 hover:bg-red-200 focus:ring-red-600"
+                title="Delete this habit"
+              >
+                Delete Habit
+              </button>
+            </div>
+          )}
 
           <div className="mb-6 sm:mb-8">
             <h2 className="text-base sm:text-lg font-semibold text-slate-900 mb-4">Check-in History</h2>
