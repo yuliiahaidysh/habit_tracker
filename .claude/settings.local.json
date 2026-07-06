@@ -43,7 +43,8 @@
       "Bash(lsof -ti:4000)",
       "Bash(grep -E \"\\\\.\\(tsx?|jsx?\\)$\")",
       "Bash(jq '.id' -r)",
-      "Bash(git stash *)"
+      "Bash(git stash *)",
+      "Bash(open \"http://localhost:5173\")"
     ]
   }
 }
