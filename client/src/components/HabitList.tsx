@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useHabits } from "../hooks/useHabits";
 import { useTodayCheckIns } from "../hooks/useTodayCheckIns";
 import HabitCard from "./HabitCard";
@@ -27,9 +27,14 @@ export default function HabitList({
 }: HabitListProps) {
   const { habits, isLoading: habitsLoading, error, refetch } = useHabits();
   const { todayCheckIns, refetch: refetchTodayCheckIns } = useTodayCheckIns(habits);
+  const [optimisticHabits, setOptimisticHabits] = useState<Map<string, Habit>>(new Map());
+
+  const displayHabits = useMemo(() => {
+    return habits.map((habit) => optimisticHabits.get(habit.id) || habit);
+  }, [habits, optimisticHabits]);
 
   const filteredHabits = useMemo(() => {
-    return habits.filter((habit) => {
+    return displayHabits.filter((habit) => {
       // Search filter: match name or description
       if (searchText.trim()) {
         const query = searchText.toLowerCase();
@@ -53,7 +58,7 @@ export default function HabitList({
 
       return true;
     });
-  }, [habits, searchText, statusFilter, checkInFilter, todayCheckIns]);
+  }, [displayHabits, searchText, statusFilter, checkInFilter, todayCheckIns]);
 
   if (habitsLoading) {
     return <HabitCardSkeletonList />;
@@ -93,6 +98,12 @@ export default function HabitList({
     await refetchTodayCheckIns();
   };
 
+  const handleHabitUpdated = (updatedHabit: Habit) => {
+    const newOptimistic = new Map(optimisticHabits);
+    newOptimistic.set(updatedHabit.id, updatedHabit);
+    setOptimisticHabits(newOptimistic);
+  };
+
   return (
     <div className="grid gap-3 sm:gap-4">
       {filteredHabits.map((habit) => (
@@ -103,6 +114,7 @@ export default function HabitList({
           onEdit={() => onEditHabit(habit)}
           onViewDetails={() => onViewDetails(habit)}
           onRefresh={handleRefresh}
+          onHabitUpdated={handleHabitUpdated}
         />
       ))}
     </div>

@@ -1,7 +1,7 @@
 import { Router, type Request, type Response } from "express";
 import { Prisma } from "@prisma/client";
 import { prisma } from "./db.js";
-import { getOwnedHabit } from "./habitsService.js";
+import { getOwnedHabit, habitWithStreaks } from "./habitsService.js";
 import { todayInAppTz } from "./dates.js";
 import { sendError, notFoundError, conflictError } from "./errors.js";
 
@@ -24,8 +24,9 @@ checkinsRouter.post("/", async (req: Request, res: Response) => {
 
   const date = todayInAppTz();
   try {
-    const checkin = await prisma.checkIn.create({ data: { habitId: habit.id, date } });
-    return res.status(201).json(checkin);
+    await prisma.checkIn.create({ data: { habitId: habit.id, date } });
+    const updatedHabit = await habitWithStreaks(habit.id);
+    return res.status(201).json(updatedHabit);
   } catch (err) {
     if (isUniqueViolation(err)) {
       return sendError(res, conflictError("already_checked_in", `Already checked in for ${date}`));
@@ -44,7 +45,8 @@ checkinsRouter.delete("/today", async (req: Request, res: Response) => {
   if (result.count === 0) {
     return sendError(res, notFoundError("Check-in"));
   }
-  return res.status(204).end();
+  const updatedHabit = await habitWithStreaks(habit.id);
+  return res.json(updatedHabit);
 });
 
 // GET /api/habits/:id/checkins?month=YYYY-MM — dates the habit was completed (for the calendar).

@@ -68,7 +68,7 @@ export function useHabitMutations() {
     }
   };
 
-  const createCheckIn = async (habitId: string): Promise<boolean> => {
+  const createCheckIn = async (habitId: string): Promise<Habit | null> => {
     try {
       setIsLoading(true);
       setError(null);
@@ -84,17 +84,17 @@ export function useHabitMutations() {
         throw new Error(errorData.error || "Failed to create check-in");
       }
 
-      return true;
+      return await response.json();
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to create check-in";
       setError(message);
-      return false;
+      return null;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const deleteCheckIn = async (habitId: string): Promise<boolean> => {
+  const deleteCheckIn = async (habitId: string): Promise<Habit | null> => {
     try {
       setIsLoading(true);
       setError(null);
@@ -108,11 +108,11 @@ export function useHabitMutations() {
         throw new Error(errorData.error || "Failed to delete check-in");
       }
 
-      return true;
+      return await response.json();
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to undo check-in";
       setError(message);
-      return false;
+      return null;
     } finally {
       setIsLoading(false);
     }
@@ -153,5 +153,5 @@ export function useHabitMutations() {
     isLoading,
     error,
     clearError,
-  };
+  } as const;
 }

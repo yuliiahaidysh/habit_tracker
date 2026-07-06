@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Habit } from "../hooks/useHabits";
 import { useHabitMutations } from "../hooks/useHabitMutations";
 
@@ -8,24 +8,33 @@ interface HabitCardProps {
   onEdit: () => void;
   onViewDetails: () => void;
   onRefresh: () => void;
+  onHabitUpdated?: (updatedHabit: Habit) => void;
 }
 
-export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, onRefresh }: HabitCardProps) {
+export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, onRefresh, onHabitUpdated }: HabitCardProps) {
   const isActive = habit.status === "ACTIVE";
   const [isCheckingIn, setIsCheckingIn] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
   const [isPausing, setIsPausing] = useState(false);
   const [optimisticChecked, setOptimisticChecked] = useState<boolean | null>(null);
+  const [currentHabit, setCurrentHabit] = useState(habit);
   const { createCheckIn, deleteCheckIn, updateHabit, error: mutationError } = useHabitMutations();
+
+  useEffect(() => {
+    setCurrentHabit(habit);
+  }, [habit]);
 
   const checkedStatus = optimisticChecked !== null ? optimisticChecked : todayChecked;
 
   const handleCheckIn = async () => {
     setIsCheckingIn(true);
     setOptimisticChecked(true);
-    const success = await createCheckIn(habit.id);
+    const updatedHabit = await createCheckIn(habit.id);
     setIsCheckingIn(false);
-    if (!success) {
+    if (updatedHabit) {
+      setCurrentHabit(updatedHabit);
+      onHabitUpdated?.(updatedHabit);
+    } else {
       setOptimisticChecked(null);
     }
   };
@@ -33,9 +42,12 @@ export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, 
   const handleUndo = async () => {
     setIsCheckingIn(true);
     setOptimisticChecked(false);
-    const success = await deleteCheckIn(habit.id);
+    const updatedHabit = await deleteCheckIn(habit.id);
     setIsCheckingIn(false);
-    if (!success) {
+    if (updatedHabit) {
+      setCurrentHabit(updatedHabit);
+      onHabitUpdated?.(updatedHabit);
+    } else {
       setOptimisticChecked(null);
     }
   };
@@ -123,15 +135,15 @@ export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, 
       <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-4">
         <div className="bg-slate-50 rounded p-1.5 sm:p-2 text-center">
           <div className="text-xs text-slate-600 font-medium">Current</div>
-          <div className="text-lg sm:text-xl font-bold text-slate-900">{habit.current}</div>
+          <div className="text-lg sm:text-xl font-bold text-slate-900">{currentHabit.current}</div>
         </div>
         <div className="bg-slate-50 rounded p-1.5 sm:p-2 text-center">
           <div className="text-xs text-slate-600 font-medium">Best</div>
-          <div className="text-lg sm:text-xl font-bold text-slate-900">{habit.best}</div>
+          <div className="text-lg sm:text-xl font-bold text-slate-900">{currentHabit.best}</div>
         </div>
         <div className="bg-slate-50 rounded p-1.5 sm:p-2 text-center">
           <div className="text-xs text-slate-600 font-medium">Total</div>
-          <div className="text-lg sm:text-xl font-bold text-slate-900">{habit.total}</div>
+          <div className="text-lg sm:text-xl font-bold text-slate-900">{currentHabit.total}</div>
         </div>
       </div>
 
