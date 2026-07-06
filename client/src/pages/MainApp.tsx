@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Header from "../components/Header";
 import HabitList from "../components/HabitList";
 import HabitFormModal from "../components/HabitFormModal";
@@ -67,6 +67,7 @@ export default function MainApp() {
   const handleViewDetails = (habit: Habit) => {
     setViewingHabit(habit);
     setViewingHabitId(habit.id);
+    window.history.pushState({ habitDetailsView: true }, "", window.location.href);
   };
 
   const handleBackFromDetails = () => {

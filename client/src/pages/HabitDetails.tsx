@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Habit } from "../hooks/useHabits";
 import { useCheckInHistory } from "../hooks/useCheckInHistory";
 import Calendar from "../components/Calendar";
@@ -17,7 +17,21 @@ interface HabitDetailsProps {
 export default function HabitDetails({ habit, onBack, onRefresh }: HabitDetailsProps) {
   const { checkIns, isLoading: checkInsLoading } = useCheckInHistory(habit.id);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const { deleteHabit, error: mutationError } = useHabitMutations();
+  const [isPausing, setIsPausing] = useState(false);
+  const [isArchiving, setIsArchiving] = useState(false);
+  const [optimisticStatus, setOptimisticStatus] = useState<string | null>(null);
+  const { deleteHabit, updateHabit, error: mutationError } = useHabitMutations();
+
+  const displayStatus = optimisticStatus || habit.status;
+
+  useEffect(() => {
+    const handlePopState = () => {
+      onBack();
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [onBack]);
 
   const checkInDates = new Set(checkIns.map((c) => c.date));
 
@@ -31,6 +45,31 @@ export default function HabitDetails({ habit, onBack, onRefresh }: HabitDetailsP
       onRefresh();
       onBack();
     }
+  };
+
+  const handleTogglePause = async () => {
+    setIsPausing(true);
+    const newStatus = displayStatus === "ACTIVE" ? "PAUSED" : "ACTIVE";
+    setOptimisticStatus(newStatus);
+    const success = await updateHabit(habit.id, { status: newStatus });
+    if (success) {
+      onRefresh();
+    } else {
+      setOptimisticStatus(null);
+    }
+    setIsPausing(false);
+  };
+
+  const handleArchive = async () => {
+    setIsArchiving(true);
+    setOptimisticStatus("ARCHIVED");
+    const success = await updateHabit(habit.id, { status: "ARCHIVED" });
+    if (success) {
+      onRefresh();
+    } else {
+      setOptimisticStatus(null);
+    }
+    setIsArchiving(false);
   };
 
   const handleEditSuccess = () => {
@@ -58,7 +97,20 @@ export default function HabitDetails({ habit, onBack, onRefresh }: HabitDetailsP
               </svg>
             </button>
             <div className="min-w-0">
-              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 truncate">{habit.name}</h1>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-900 truncate">{habit.name}</h1>
+                <div
+                  className={`px-2 py-0.5 text-xs font-medium rounded-full whitespace-nowrap ${
+                    displayStatus === "ACTIVE"
+                      ? "bg-emerald-100 text-emerald-700"
+                      : displayStatus === "PAUSED"
+                        ? "bg-amber-100 text-amber-700"
+                        : "bg-slate-100 text-slate-600"
+                  }`}
+                >
+                  {displayStatus}
+                </div>
+              </div>
               {habit.description && (
                 <p className="text-xs sm:text-sm text-slate-600 mt-0.5 truncate">{habit.description}</p>
               )}
@@ -87,8 +139,8 @@ export default function HabitDetails({ habit, onBack, onRefresh }: HabitDetailsP
             </div>
           </div>
 
-          {habit.status !== "Archived" && (
-            <div className="grid grid-cols-2 gap-2 mb-6 sm:mb-8">
+          {displayStatus !== "ARCHIVED" && (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6 sm:mb-8">
               <button
                 onClick={() => setIsFormOpen(true)}
                 className="px-3 sm:px-4 py-2 text-sm sm:text-base rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors bg-slate-900 text-white hover:bg-slate-800 focus:ring-brand-600"
@@ -97,8 +149,28 @@ export default function HabitDetails({ habit, onBack, onRefresh }: HabitDetailsP
                 Edit Habit
               </button>
               <button
+                onClick={handleTogglePause}
+                disabled={isPausing}
+                title={displayStatus === "ACTIVE" ? "Pause habit" : "Resume habit"}
+                className={`px-3 sm:px-4 py-2 text-sm sm:text-base rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${
+                  displayStatus === "ACTIVE"
+                    ? "bg-amber-100 text-amber-700 hover:bg-amber-200 focus:ring-amber-600"
+                    : "bg-blue-100 text-blue-700 hover:bg-blue-200 focus:ring-blue-600"
+                }`}
+              >
+                {isPausing ? "Updating…" : displayStatus === "ACTIVE" ? "Pause" : "Resume"}
+              </button>
+              <button
+                onClick={handleArchive}
+                disabled={isArchiving}
+                title="Archive habit"
+                className="px-3 sm:px-4 py-2 text-sm sm:text-base rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors bg-red-100 text-red-700 hover:bg-red-200 focus:ring-red-600"
+              >
+                {isArchiving ? "Archiving…" : "Archive"}
+              </button>
+              <button
                 onClick={handleDeleteHabit}
-                className="px-3 sm:px-4 py-2 text-sm sm:text-base rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors bg-red-100 text-red-700 hover:bg-red-200 focus:ring-red-600"
+                className="px-3 sm:px-4 py-2 text-sm sm:text-base rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors bg-slate-100 text-slate-700 hover:bg-slate-200 focus:ring-slate-600"
                 title="Delete this habit"
               >
                 Delete Habit
