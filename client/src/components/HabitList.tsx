@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useHabits } from "../hooks/useHabits";
 import { useTodayCheckIns } from "../hooks/useTodayCheckIns";
 import HabitCard from "./HabitCard";
@@ -27,6 +27,22 @@ export default function HabitList({
 }: HabitListProps) {
   const { habits, isLoading: habitsLoading, error, refetch } = useHabits();
   const { todayCheckIns, refetch: refetchTodayCheckIns } = useTodayCheckIns(habits);
+  const [optimisticUpdates, setOptimisticUpdates] = useState<Map<string, boolean>>(new Map());
+
+  const handleOptimisticUpdate = (habitId: string, checked: boolean) => {
+    setOptimisticUpdates((prev) => {
+      const next = new Map(prev);
+      next.set(habitId, checked);
+      return next;
+    });
+  };
+
+  const getCheckedStatus = (habitId: string) => {
+    if (optimisticUpdates.has(habitId)) {
+      return optimisticUpdates.get(habitId)!;
+    }
+    return todayCheckIns.has(habitId);
+  };
 
   const filteredHabits = useMemo(() => {
     return habits.filter((habit) => {
@@ -46,14 +62,14 @@ export default function HabitList({
 
       // Check-in status filter
       if (checkInFilter !== "all") {
-        const checkedToday = todayCheckIns.has(habit.id);
+        const checkedToday = getCheckedStatus(habit.id);
         if (checkInFilter === "completed" && !checkedToday) return false;
         if (checkInFilter === "not-completed" && checkedToday) return false;
       }
 
       return true;
     });
-  }, [habits, searchText, statusFilter, checkInFilter, todayCheckIns]);
+  }, [habits, searchText, statusFilter, checkInFilter, todayCheckIns, optimisticUpdates]);
 
   if (habitsLoading) {
     return <HabitCardSkeletonList />;
@@ -89,6 +105,7 @@ export default function HabitList({
   }
 
   const handleRefresh = async () => {
+    setOptimisticUpdates(new Map());
     await refetch();
     await refetchTodayCheckIns();
   };
@@ -99,10 +116,11 @@ export default function HabitList({
         <HabitCard
           key={habit.id}
           habit={habit}
-          todayChecked={todayCheckIns.has(habit.id)}
+          todayChecked={getCheckedStatus(habit.id)}
           onEdit={() => onEditHabit(habit)}
           onViewDetails={() => onViewDetails(habit)}
           onRefresh={handleRefresh}
+          onOptimisticUpdate={handleOptimisticUpdate}
         />
       ))}
     </div>

@@ -1,23 +1,13 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 
 export function useTodayCheckIns(habits: any[]) {
   const { user } = useAuth();
   const [todayCheckIns, setTodayCheckIns] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
-  const habitsRef = useRef(habits);
-
-  useEffect(() => {
-    habitsRef.current = habits;
-  }, [habits]);
 
   const fetchTodayCheckIns = useCallback(async () => {
-    const habitsToCheck = habitsRef.current;
-
-    console.log('fetchTodayCheckIns: checking habits, count:', habitsToCheck.length);
-
-    if (!user || habitsToCheck.length === 0) {
-      console.log('fetchTodayCheckIns: no user or no habits, setting empty');
+    if (!user || habits.length === 0) {
       setTodayCheckIns(new Set());
       return;
     }
@@ -25,8 +15,9 @@ export function useTodayCheckIns(habits: any[]) {
     try {
       setIsLoading(true);
       const checkedIds = new Set<string>();
+      const today = new Date().toISOString().split("T")[0];
 
-      for (const habit of habitsToCheck) {
+      for (const habit of habits) {
         try {
           const response = await fetch(`/api/habits/${habit.id}/checkins`, {
             credentials: "include",
@@ -34,9 +25,7 @@ export function useTodayCheckIns(habits: any[]) {
 
           if (response.ok) {
             const checkIns = await response.json();
-            const today = new Date().toISOString().split("T")[0];
-
-            if (checkIns.some((c: any) => c === today || c.date === today)) {
+            if (checkIns.some((c: any) => c.date === today)) {
               checkedIds.add(habit.id);
             }
           }
@@ -45,12 +34,11 @@ export function useTodayCheckIns(habits: any[]) {
         }
       }
 
-      console.log('fetchTodayCheckIns: found checked habits:', Array.from(checkedIds));
       setTodayCheckIns(checkedIds);
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user, habits]);
 
   useEffect(() => {
     fetchTodayCheckIns();

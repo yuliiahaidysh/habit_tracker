@@ -8,26 +8,42 @@ interface HabitCardProps {
   onEdit: () => void;
   onViewDetails: () => void;
   onRefresh: () => void;
+  onOptimisticUpdate: (habitId: string, checked: boolean) => void;
 }
 
-export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, onRefresh }: HabitCardProps) {
+export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, onRefresh, onOptimisticUpdate }: HabitCardProps) {
   const isActive = habit.status === "ACTIVE";
   const [isCheckingIn, setIsCheckingIn] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
   const [isPausing, setIsPausing] = useState(false);
+  const [optimisticChecked, setOptimisticChecked] = useState(false);
   const { createCheckIn, deleteCheckIn, updateHabit, error: mutationError } = useHabitMutations();
 
   const handleCheckIn = async () => {
     setIsCheckingIn(true);
+    setOptimisticChecked(true);
+    onOptimisticUpdate(habit.id, true);
     const success = await createCheckIn(habit.id);
-    if (success) await onRefresh();
+    if (!success) {
+      setOptimisticChecked(false);
+      onOptimisticUpdate(habit.id, todayChecked);
+    } else {
+      await onRefresh();
+    }
     setIsCheckingIn(false);
   };
 
   const handleUndo = async () => {
     setIsCheckingIn(true);
+    setOptimisticChecked(false);
+    onOptimisticUpdate(habit.id, false);
     const success = await deleteCheckIn(habit.id);
-    if (success) await onRefresh();
+    if (!success) {
+      setOptimisticChecked(true);
+      onOptimisticUpdate(habit.id, todayChecked);
+    } else {
+      await onRefresh();
+    }
     setIsCheckingIn(false);
   };
 
@@ -131,12 +147,12 @@ export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, 
         <div className="flex items-center gap-2 sm:gap-3">
           <div
             className={`flex items-center justify-center w-8 h-8 rounded-full border-2 transition-all focus-within:ring-2 focus-within:ring-brand-600 focus-within:ring-offset-2 ${
-              todayChecked
+              optimisticChecked || todayChecked
                 ? "bg-emerald-500 border-emerald-500"
                 : "border-slate-300 bg-white hover:border-slate-400"
             }`}
           >
-            {todayChecked && (
+            {(optimisticChecked || todayChecked) && (
               <svg
                 className="w-5 h-5 text-white"
                 fill="currentColor"
@@ -152,7 +168,7 @@ export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, 
           </div>
           {isActive && (
             <>
-              {todayChecked ? (
+              {optimisticChecked || todayChecked ? (
                 <button
                   onClick={handleUndo}
                   disabled={isCheckingIn}
