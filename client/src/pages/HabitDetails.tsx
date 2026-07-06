@@ -134,7 +134,7 @@ export default function HabitDetails({ habit, onBack, onRefresh }: HabitDetailsP
                         className="flex items-center justify-between bg-slate-50 rounded-lg p-2 sm:p-3 hover:bg-slate-100 transition-colors"
                       >
                         <span className="text-xs sm:text-sm text-slate-700 font-medium">
-                          {new Date(checkIn.date + "T00:00:00").toLocaleDateString("en-US", {
+                          {new Date(checkIn.date + "T00:00:00Z").toLocaleDateString("en-US", {
                             weekday: "short",
                             month: "short",
                             day: "numeric",

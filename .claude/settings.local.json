@@ -39,7 +39,8 @@
       "Bash(kill -9 16683)",
       "Bash(pkill -f \"vite\")",
       "Bash(awk '{print $2}')",
-      "Bash(echo \"Started dev server with PID $!\")"
+      "Bash(echo \"Started dev server with PID $!\")",
+      "Bash(lsof -ti:4000)"
     ]
   }
 }
