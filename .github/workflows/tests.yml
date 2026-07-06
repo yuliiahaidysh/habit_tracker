@@ -28,7 +28,9 @@ jobs:
     - name: Generate Prisma Client
       env:
         DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
-      run: npx prisma generate
+      run: |
+        cd server
+        npx prisma generate
 
     - name: Run Test Suite
       run: npm test
