@@ -24,26 +24,20 @@ export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, 
     setIsCheckingIn(true);
     setOptimisticChecked(true);
     const success = await createCheckIn(habit.id);
-    if (success) {
-      await onRefresh();
-      setOptimisticChecked(null);
-    } else {
+    setIsCheckingIn(false);
+    if (!success) {
       setOptimisticChecked(null);
     }
-    setIsCheckingIn(false);
   };
 
   const handleUndo = async () => {
     setIsCheckingIn(true);
     setOptimisticChecked(false);
     const success = await deleteCheckIn(habit.id);
-    if (success) {
-      await onRefresh();
-      setOptimisticChecked(null);
-    } else {
+    setIsCheckingIn(false);
+    if (!success) {
       setOptimisticChecked(null);
     }
-    setIsCheckingIn(false);
   };
 
   const handleTogglePause = async () => {
