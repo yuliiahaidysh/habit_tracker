@@ -29,7 +29,14 @@ export default function Header() {
     <>
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <h1 className="text-xl font-bold text-slate-900">Habit Tracker</h1>
+          <div className="flex items-center gap-3">
+            <img
+              src="https://www.wellable.co/blog/wp-content/uploads/2024/01/Science-Of-Habit-Formation-Habit-Loop-edited.png"
+              alt="Habit loop illustration"
+              className="h-12 w-12"
+            />
+            <h1 className="text-xl font-bold text-slate-900">Habit Tracker</h1>
+          </div>
           {user && (
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
