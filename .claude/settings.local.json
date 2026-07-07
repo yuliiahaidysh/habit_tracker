@@ -1,4 +1,6 @@
 {
+  "availableModels": ["haiku"],
+  "model": "haiku",
   "permissions": {
     "allow": [
       "Bash(npm install *)",

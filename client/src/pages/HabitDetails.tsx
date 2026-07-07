@@ -8,6 +8,7 @@ import EmptyState from "../components/EmptyState";
 import { NoCheckInsIcon } from "../components/EmptyStateIcons";
 import { CheckInHistorySkeleton, RecentCheckInsSkeleton } from "../components/SkeletonLoader";
 import { useHabitMutations } from "../hooks/useHabitMutations";
+import { formatDateLocale } from "../utils/dateUtils";
 
 interface HabitDetailsProps {
   habit: Habit;
@@ -213,12 +214,7 @@ export default function HabitDetails({ habit, onBack, onRefresh }: HabitDetailsP
                         className="flex items-center justify-between bg-slate-50 rounded-lg p-2 sm:p-3 hover:bg-slate-100 transition-colors"
                       >
                         <span className="text-xs sm:text-sm text-slate-700 font-medium">
-                          {new Date(checkIn.date + "T00:00:00Z").toLocaleDateString("en-US", {
-                            weekday: "short",
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
+                          {formatDateLocale(checkIn.date)}
                         </span>
                         <svg className="w-5 h-5 text-emerald-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                           <path

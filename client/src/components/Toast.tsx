@@ -1,11 +1,6 @@
 import { useEffect } from "react";
-
-interface ToastMessage {
-  id: string;
-  type: "success" | "milestone";
-  title: string;
-  message: string;
-}
+import { ToastMessage } from "../types";
+import { TOAST_TIMEOUT } from "../constants/config";
 
 interface ToastProps {
   messages: ToastMessage[];
@@ -33,7 +28,7 @@ interface ToastItemProps {
 
 function ToastItem({ message, onRemove }: ToastItemProps) {
   useEffect(() => {
-    const timer = setTimeout(onRemove, 5000);
+    const timer = setTimeout(onRemove, TOAST_TIMEOUT);
     return () => clearTimeout(timer);
   }, [onRemove]);
 

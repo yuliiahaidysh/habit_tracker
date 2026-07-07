@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { Habit } from "./useHabits";
+import { API_ENDPOINTS } from "../api/endpoints";
 
 interface CreateHabitInput {
   name: string;
@@ -20,7 +21,7 @@ export function useHabitMutations() {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch("/api/habits", {
+      const response = await fetch(API_ENDPOINTS.HABITS, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -46,7 +47,7 @@ export function useHabitMutations() {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch(`/api/habits/${habitId}`, {
+      const response = await fetch(API_ENDPOINTS.HABIT_BY_ID(habitId), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -72,7 +73,7 @@ export function useHabitMutations() {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch(`/api/habits/${habitId}/checkins`, {
+      const response = await fetch(API_ENDPOINTS.HABIT_CHECKINS(habitId), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -122,7 +123,7 @@ export function useHabitMutations() {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch(`/api/habits/${habitId}`, {
+      const response = await fetch(API_ENDPOINTS.HABIT_BY_ID(habitId), {
         method: "DELETE",
         credentials: "include",
       });

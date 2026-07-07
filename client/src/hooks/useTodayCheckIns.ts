@@ -1,7 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
+import { Habit } from "./useHabits";
+import { CheckIn } from "./useCheckInHistory";
+import { API_ENDPOINTS } from "../api/endpoints";
+import { getTodayString } from "../utils/dateUtils";
 
-export function useTodayCheckIns(habits: any[]) {
+export function useTodayCheckIns(habits: Habit[]) {
   const { user } = useAuth();
   const [todayCheckIns, setTodayCheckIns] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
@@ -15,17 +19,17 @@ export function useTodayCheckIns(habits: any[]) {
     try {
       setIsLoading(true);
       const checkedIds = new Set<string>();
-      const today = new Date().toISOString().split("T")[0];
+      const today = getTodayString();
 
       for (const habit of habits) {
         try {
-          const response = await fetch(`/api/habits/${habit.id}/checkins`, {
+          const response = await fetch(API_ENDPOINTS.HABIT_CHECKINS(habit.id), {
             credentials: "include",
           });
 
           if (response.ok) {
-            const checkIns = await response.json();
-            if (checkIns.some((c: any) => c.date === today)) {
+            const checkIns: CheckIn[] = await response.json();
+            if (checkIns.some((c) => c.date === today)) {
               checkedIds.add(habit.id);
             }
           }

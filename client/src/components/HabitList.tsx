@@ -6,9 +6,7 @@ import EmptyState from "./EmptyState";
 import { NoHabitsIcon, NoResultsIcon } from "./EmptyStateIcons";
 import { HabitCardSkeletonList } from "./SkeletonLoader";
 import { Habit } from "../hooks/useHabits";
-
-type StatusFilter = "all" | "active" | "paused" | "archived";
-type CheckInFilter = "all" | "completed" | "not-completed";
+import { StatusFilter, CheckInFilter } from "../types";
 
 interface HabitListProps {
   onEditHabit: (habit: Habit) => void;
