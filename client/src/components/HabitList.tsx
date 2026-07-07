@@ -28,10 +28,17 @@ export default function HabitList({
   const { habits, isLoading: habitsLoading, error, refetch } = useHabits();
   const { todayCheckIns, refetch: refetchTodayCheckIns } = useTodayCheckIns(habits);
   const [optimisticHabits, setOptimisticHabits] = useState<Map<string, Habit>>(new Map());
+  const [optimisticCheckIns, setOptimisticCheckIns] = useState<Set<string>>(new Set());
 
   const displayHabits = useMemo(() => {
     return habits.map((habit) => optimisticHabits.get(habit.id) || habit);
   }, [habits, optimisticHabits]);
+
+  const effectiveTodayCheckIns = useMemo(() => {
+    const merged = new Set(todayCheckIns);
+    optimisticCheckIns.forEach((id) => merged.add(id));
+    return merged;
+  }, [todayCheckIns, optimisticCheckIns]);
 
   const filteredHabits = useMemo(() => {
     return displayHabits.filter((habit) => {
@@ -51,14 +58,14 @@ export default function HabitList({
 
       // Check-in status filter
       if (checkInFilter !== "all") {
-        const checkedToday = todayCheckIns.has(habit.id);
+        const checkedToday = effectiveTodayCheckIns.has(habit.id);
         if (checkInFilter === "completed" && !checkedToday) return false;
         if (checkInFilter === "not-completed" && checkedToday) return false;
       }
 
       return true;
     });
-  }, [displayHabits, searchText, statusFilter, checkInFilter, todayCheckIns]);
+  }, [displayHabits, searchText, statusFilter, checkInFilter, effectiveTodayCheckIns]);
 
   if (habitsLoading) {
     return <HabitCardSkeletonList />;
@@ -104,17 +111,28 @@ export default function HabitList({
     setOptimisticHabits(newOptimistic);
   };
 
+  const handleCheckInStatusChanged = (habitId: string, isChecked: boolean) => {
+    const newOptimisticCheckIns = new Set(optimisticCheckIns);
+    if (isChecked) {
+      newOptimisticCheckIns.add(habitId);
+    } else {
+      newOptimisticCheckIns.delete(habitId);
+    }
+    setOptimisticCheckIns(newOptimisticCheckIns);
+  };
+
   return (
     <div className="grid gap-3 sm:gap-4">
       {filteredHabits.map((habit) => (
         <HabitCard
           key={habit.id}
           habit={habit}
-          todayChecked={todayCheckIns.has(habit.id)}
+          todayChecked={effectiveTodayCheckIns.has(habit.id)}
           onEdit={() => onEditHabit(habit)}
           onViewDetails={() => onViewDetails(habit)}
           onRefresh={handleRefresh}
           onHabitUpdated={handleHabitUpdated}
+          onCheckInStatusChanged={handleCheckInStatusChanged}
         />
       ))}
     </div>
