@@ -69,7 +69,8 @@ habitsRouter.patch("/:id", async (req: Request, res: Response) => {
       ...(next.status !== undefined ? { status: next.status } : {}),
     },
   });
-  res.json(updated);
+  const withStreaks = await habitWithStreaks(habit.id);
+  res.json(withStreaks);
 });
 
 // DELETE /api/habits/:id — owner-only; cascades to check-ins + milestone records

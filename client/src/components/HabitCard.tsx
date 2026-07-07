@@ -10,9 +10,10 @@ interface HabitCardProps {
   onRefresh: () => void;
   onHabitUpdated?: (updatedHabit: Habit) => void;
   onCheckInStatusChanged?: (habitId: string, isChecked: boolean) => void;
+  onCheckInFailed?: (habitId: string) => void;
 }
 
-export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, onRefresh, onHabitUpdated, onCheckInStatusChanged }: HabitCardProps) {
+export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, onRefresh, onHabitUpdated, onCheckInStatusChanged, onCheckInFailed }: HabitCardProps) {
   const isActive = habit.status === "ACTIVE";
   const [isCheckingIn, setIsCheckingIn] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
@@ -36,8 +37,10 @@ export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, 
       setCurrentHabit(updatedHabit);
       onHabitUpdated?.(updatedHabit);
       onCheckInStatusChanged?.(habit.id, true);
+      await onRefresh();
     } else {
       setOptimisticChecked(null);
+      onCheckInFailed?.(habit.id);
     }
   };
 
@@ -50,8 +53,10 @@ export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, 
       setCurrentHabit(updatedHabit);
       onHabitUpdated?.(updatedHabit);
       onCheckInStatusChanged?.(habit.id, false);
+      await onRefresh();
     } else {
       setOptimisticChecked(null);
+      onCheckInFailed?.(habit.id);
     }
   };
 

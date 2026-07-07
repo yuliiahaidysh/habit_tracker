@@ -59,5 +59,5 @@ checkinsRouter.get("/", async (req: Request, res: Response) => {
     where: { habitId: habit.id, ...(month ? { date: { startsWith: `${month}-` } } : {}) },
     orderBy: { date: "asc" },
   });
-  res.json(checkins);
+  res.json(checkins.map((c) => c.date));
 });

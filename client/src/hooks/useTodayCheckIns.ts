@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Habit } from "./useHabits";
-import { CheckIn } from "./useCheckInHistory";
 import { API_ENDPOINTS } from "../api/endpoints";
 import { getTodayString } from "../utils/dateUtils";
 
@@ -28,8 +27,8 @@ export function useTodayCheckIns(habits: Habit[]) {
           });
 
           if (response.ok) {
-            const checkIns: CheckIn[] = await response.json();
-            if (checkIns.some((c) => c.date === today)) {
+            const dates: string[] = await response.json();
+            if (dates.includes(today)) {
               checkedIds.add(habit.id);
             }
           }

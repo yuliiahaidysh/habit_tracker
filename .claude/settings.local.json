@@ -1,6 +1,4 @@
 {
-  "availableModels": ["haiku"],
-  "model": "haiku",
   "permissions": {
     "allow": [
       "Bash(npm install *)",
@@ -47,7 +45,12 @@
       "Bash(jq '.id' -r)",
       "Bash(git stash *)",
       "Bash(open \"http://localhost:5173\")",
-      "Bash(npx prisma *)"
+      "Bash(npx prisma *)",
+      "Skill(simplify)"
     ]
-  }
+  },
+  "model": "haiku",
+  "availableModels": [
+    "haiku"
+  ]
 }
