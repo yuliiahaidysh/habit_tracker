@@ -1,8 +1,4 @@
 {
-  "model": "claude-haiku-4-5",
-  "availableModels": ["haiku"],
-  "enforceAvailableModels": true,
-  "fallbackModel": ["claude-haiku-4-5"],
   "permissions": {
     "allow": [
       "Bash(npm install *)",
