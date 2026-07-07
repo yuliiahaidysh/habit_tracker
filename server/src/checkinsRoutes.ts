@@ -24,9 +24,9 @@ checkinsRouter.post("/", async (req: Request, res: Response) => {
 
   const date = todayInAppTz();
   try {
-    await prisma.checkIn.create({ data: { habitId: habit.id, date } });
+    const checkIn = await prisma.checkIn.create({ data: { habitId: habit.id, date } });
     const updatedHabit = await habitWithStreaks(habit.id);
-    return res.status(201).json(updatedHabit);
+    return res.status(201).json({ ...checkIn, ...updatedHabit });
   } catch (err) {
     if (isUniqueViolation(err)) {
       return sendError(res, conflictError("already_checked_in", `Already checked in for ${date}`));
@@ -46,7 +46,7 @@ checkinsRouter.delete("/today", async (req: Request, res: Response) => {
     return sendError(res, notFoundError("Check-in"));
   }
   const updatedHabit = await habitWithStreaks(habit.id);
-  return res.json(updatedHabit);
+  return res.status(200).json(updatedHabit);
 });
 
 // GET /api/habits/:id/checkins?month=YYYY-MM — dates the habit was completed (for the calendar).

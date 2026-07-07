@@ -28,7 +28,8 @@ habitsRouter.post("/", async (req: Request, res: Response) => {
       status: parsed.data.status ?? "ACTIVE",
     },
   });
-  res.status(201).json(habit);
+  const withStreaks = await habitWithStreaks(habit.id);
+  res.status(201).json(withStreaks);
 });
 
 // GET /api/habits/:id — single habit with streak fields (owner-scoped)

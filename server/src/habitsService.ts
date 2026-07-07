@@ -33,5 +33,10 @@ export async function habitWithStreaks(habitId: string) {
   const dates = checkIns.map((c) => c.date);
   const streaks = computeStreaks(dates, todayInAppTz());
 
-  return { ...habit, ...streaks };
+  return {
+    ...habit,
+    current: streaks.current,
+    best: streaks.best,
+    total: streaks.total
+  };
 }

@@ -37,7 +37,10 @@ describe("check-ins API", () => {
     const id = await makeHabit(agent);
 
     await agent.post(`/api/habits/${id}/checkins`);
-    expect((await agent.delete(`/api/habits/${id}/checkins/today`)).status).toBe(204);
+    const undo = await agent.delete(`/api/habits/${id}/checkins/today`);
+    expect(undo.status).toBe(200);
+    // Best recalculates when undo removes the only check-in
+    expect(undo.body).toMatchObject({ current: 0, best: 0, total: 0 });
     // Undo again -> nothing to remove
     expect((await agent.delete(`/api/habits/${id}/checkins/today`)).status).toBe(404);
     // Can check in again after undo

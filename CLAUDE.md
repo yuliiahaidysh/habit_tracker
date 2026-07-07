@@ -22,8 +22,9 @@ provider_user_id, email (nullable), display_name, avatar_url (optional). A local
 created on first successful sign-in. Auth must survive page refresh, and logout is required.
 
 **Streaks are strict consecutive calendar days.** Current streak = consecutive days ending today;
-any missed day resets it. Best streak = historical max, never decreases. Pausing does not preserve a
-streak — a gap breaks it. Removing today's check-in must recalculate the current streak correctly.
+any missed day resets it. Best streak = maximum consecutive days currently achievable from the
+check-in history (recalculated dynamically, not a persisted high-water mark). Removing a check-in
+recalculates both current and best streaks. Pausing does not preserve a streak — a gap breaks it.
 Because "today" is date-sensitive, the timezone approach must be chosen deliberately and documented
 in README.
 
