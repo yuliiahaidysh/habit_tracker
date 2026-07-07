@@ -5,6 +5,14 @@ export default function AuthEntry() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-brand-50 to-white px-6 py-12">
       <div className="w-full max-w-md space-y-8">
+        <div className="flex justify-center">
+          <img
+            src="https://www.wellable.co/blog/wp-content/uploads/2024/01/Science-Of-Habit-Formation-Habit-Loop-edited.png"
+            alt="Discipline illustration"
+            className="w-48 h-48"
+            sizes="200px"
+          />
+        </div>
         <div className="text-center">
           <h1 className="text-4xl font-bold tracking-tight text-slate-900">Habit Tracker</h1>
           <p className="mt-4 text-lg text-slate-600">

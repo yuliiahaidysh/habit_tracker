@@ -37,7 +37,6 @@ export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, 
       setCurrentHabit(updatedHabit);
       onHabitUpdated?.(updatedHabit);
       onCheckInStatusChanged?.(habit.id, true);
-      await onRefresh();
     } else {
       setOptimisticChecked(null);
       onCheckInFailed?.(habit.id);
@@ -53,7 +52,6 @@ export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, 
       setCurrentHabit(updatedHabit);
       onHabitUpdated?.(updatedHabit);
       onCheckInStatusChanged?.(habit.id, false);
-      await onRefresh();
     } else {
       setOptimisticChecked(null);
       onCheckInFailed?.(habit.id);
@@ -65,7 +63,9 @@ export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, 
     const newStatus = habit.status === "ACTIVE" ? "PAUSED" : "ACTIVE";
     const success = await updateHabit(habit.id, { status: newStatus });
     if (success) {
-      await onRefresh();
+      const updatedHabit = { ...currentHabit, status: newStatus };
+      setCurrentHabit(updatedHabit);
+      onHabitUpdated?.(updatedHabit);
     }
     setIsPausing(false);
   };
@@ -74,7 +74,9 @@ export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, 
     setIsArchiving(true);
     const success = await updateHabit(habit.id, { status: "ARCHIVED" });
     if (success) {
-      await onRefresh();
+      const updatedHabit = { ...currentHabit, status: "ARCHIVED" };
+      setCurrentHabit(updatedHabit);
+      onHabitUpdated?.(updatedHabit);
     }
     setIsArchiving(false);
   };
