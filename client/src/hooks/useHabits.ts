@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
+import { API_ENDPOINTS } from "../api/endpoints";
 
 export interface Habit {
   id: string;
@@ -25,7 +26,7 @@ export function useHabits() {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch("/api/habits", {
+      const response = await fetch(API_ENDPOINTS.HABITS, {
         credentials: "include",
       });
 

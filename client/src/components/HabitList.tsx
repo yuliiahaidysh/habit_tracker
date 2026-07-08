@@ -6,9 +6,7 @@ import EmptyState from "./EmptyState";
 import { NoHabitsIcon, NoResultsIcon } from "./EmptyStateIcons";
 import { HabitCardSkeletonList } from "./SkeletonLoader";
 import { Habit } from "../hooks/useHabits";
-
-type StatusFilter = "all" | "active" | "paused" | "archived";
-type CheckInFilter = "all" | "completed" | "not-completed";
+import { StatusFilter, CheckInFilter } from "../types";
 
 interface HabitListProps {
   onEditHabit: (habit: Habit) => void;
@@ -121,6 +119,12 @@ export default function HabitList({
     setOptimisticCheckIns(newOptimisticCheckIns);
   };
 
+  const handleCheckInFailed = (habitId: string) => {
+    const newOptimisticCheckIns = new Set(optimisticCheckIns);
+    newOptimisticCheckIns.delete(habitId);
+    setOptimisticCheckIns(newOptimisticCheckIns);
+  };
+
   return (
     <div className="grid gap-3 sm:gap-4">
       {filteredHabits.map((habit) => (
@@ -133,6 +137,7 @@ export default function HabitList({
           onRefresh={handleRefresh}
           onHabitUpdated={handleHabitUpdated}
           onCheckInStatusChanged={handleCheckInStatusChanged}
+          onCheckInFailed={handleCheckInFailed}
         />
       ))}
     </div>

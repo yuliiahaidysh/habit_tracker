@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { WEBSOCKET_CONFIG } from "../constants/config";
 
 export interface MilestoneNotification {
   type: "milestone";
@@ -23,7 +24,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
 
     try {
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-      const wsUrl = `${protocol}//${window.location.hostname}:4000`;
+      const wsUrl = `${protocol}//${window.location.hostname}:${WEBSOCKET_CONFIG.PORT}`;
       const ws = new WebSocket(wsUrl);
 
       ws.onopen = () => {
@@ -74,7 +75,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
       console.error("[ws] connection failed", err);
       setError("Failed to connect to WebSocket");
     }
-  }, [options]);
+  }, [options.onMilestoneReceived]);
 
   const disconnect = useCallback(() => {
     if (wsRef.current) {

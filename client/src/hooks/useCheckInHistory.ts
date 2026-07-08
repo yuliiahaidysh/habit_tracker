@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
+import { API_ENDPOINTS } from "../api/endpoints";
 
 export interface CheckIn {
   date: string;
@@ -22,7 +23,7 @@ export function useCheckInHistory(habitId: string | null) {
       try {
         setIsLoading(true);
         setError(null);
-        const response = await fetch(`/api/habits/${habitId}/checkins`, {
+        const response = await fetch(API_ENDPOINTS.HABIT_CHECKINS(habitId), {
           credentials: "include",
         });
 

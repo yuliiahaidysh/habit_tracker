@@ -6,16 +6,7 @@ import HabitDetails from "./HabitDetails";
 import Toast from "../components/Toast";
 import { Habit } from "../hooks/useHabits";
 import { useWebSocket, MilestoneNotification } from "../hooks/useWebSocket";
-
-type StatusFilter = "all" | "active" | "paused" | "archived";
-type CheckInFilter = "all" | "completed" | "not-completed";
-
-interface ToastMessage {
-  id: string;
-  type: "success" | "milestone";
-  title: string;
-  message: string;
-}
+import { StatusFilter, CheckInFilter, ToastMessage } from "../types";
 
 export default function MainApp() {
   const [isFormOpen, setIsFormOpen] = useState(false);

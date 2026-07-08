@@ -10,9 +10,10 @@ interface HabitCardProps {
   onRefresh: () => void;
   onHabitUpdated?: (updatedHabit: Habit) => void;
   onCheckInStatusChanged?: (habitId: string, isChecked: boolean) => void;
+  onCheckInFailed?: (habitId: string) => void;
 }
 
-export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, onRefresh, onHabitUpdated, onCheckInStatusChanged }: HabitCardProps) {
+export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, onRefresh, onHabitUpdated, onCheckInStatusChanged, onCheckInFailed }: HabitCardProps) {
   const isActive = habit.status === "ACTIVE";
   const [isCheckingIn, setIsCheckingIn] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
@@ -38,6 +39,7 @@ export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, 
       onCheckInStatusChanged?.(habit.id, true);
     } else {
       setOptimisticChecked(null);
+      onCheckInFailed?.(habit.id);
     }
   };
 
@@ -52,6 +54,7 @@ export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, 
       onCheckInStatusChanged?.(habit.id, false);
     } else {
       setOptimisticChecked(null);
+      onCheckInFailed?.(habit.id);
     }
   };
 
@@ -60,7 +63,9 @@ export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, 
     const newStatus = habit.status === "ACTIVE" ? "PAUSED" : "ACTIVE";
     const success = await updateHabit(habit.id, { status: newStatus });
     if (success) {
-      await onRefresh();
+      const updatedHabit = { ...currentHabit, status: newStatus };
+      setCurrentHabit(updatedHabit);
+      onHabitUpdated?.(updatedHabit);
     }
     setIsPausing(false);
   };
@@ -69,7 +74,9 @@ export default function HabitCard({ habit, todayChecked, onEdit, onViewDetails, 
     setIsArchiving(true);
     const success = await updateHabit(habit.id, { status: "ARCHIVED" });
     if (success) {
-      await onRefresh();
+      const updatedHabit = { ...currentHabit, status: "ARCHIVED" };
+      setCurrentHabit(updatedHabit);
+      onHabitUpdated?.(updatedHabit);
     }
     setIsArchiving(false);
   };

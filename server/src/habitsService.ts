@@ -23,20 +23,17 @@ export async function getOwnedHabit(userId: string, habitId: string) {
 
 /** Enrich a habit with streak data. */
 export async function habitWithStreaks(habitId: string) {
-  const habit = await prisma.habit.findUnique({ where: { id: habitId } });
+  const [habit, checkIns] = await Promise.all([
+    prisma.habit.findUnique({ where: { id: habitId } }),
+    prisma.checkIn.findMany({
+      where: { habitId },
+      select: { date: true },
+    }),
+  ]);
   if (!habit) return null;
 
-  const checkIns = await prisma.checkIn.findMany({
-    where: { habitId },
-    select: { date: true },
-  });
   const dates = checkIns.map((c) => c.date);
   const streaks = computeStreaks(dates, todayInAppTz());
 
-  return {
-    ...habit,
-    current: streaks.current,
-    best: streaks.best,
-    total: streaks.total
-  };
+  return { ...habit, ...streaks };
 }

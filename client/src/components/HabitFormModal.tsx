@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Habit } from "../hooks/useHabits";
 import { useHabitMutations } from "../hooks/useHabitMutations";
+import { FORM_CONSTRAINTS } from "../constants/config";
 
 interface HabitFormModalProps {
   isOpen: boolean;
@@ -9,9 +10,6 @@ interface HabitFormModalProps {
   habit?: Habit;
 }
 
-const MAX_NAME_LENGTH = 100;
-const MAX_DESCRIPTION_LENGTH = 500;
-
 export default function HabitFormModal({ isOpen, onClose, onSuccess, habit }: HabitFormModalProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -19,8 +17,8 @@ export default function HabitFormModal({ isOpen, onClose, onSuccess, habit }: Ha
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const { createHabit, updateHabit, error, clearError } = useHabitMutations();
 
-  const nameError = touched.name && (name.trim() === "" ? "Habit name is required" : name.length > MAX_NAME_LENGTH ? `Name must be ${MAX_NAME_LENGTH} characters or less` : "");
-  const descError = description.length > MAX_DESCRIPTION_LENGTH ? `Description must be ${MAX_DESCRIPTION_LENGTH} characters or less` : "";
+  const nameError = touched.name && (name.trim() === "" ? "Habit name is required" : name.length > FORM_CONSTRAINTS.MAX_NAME_LENGTH ? `Name must be ${FORM_CONSTRAINTS.MAX_NAME_LENGTH} characters or less` : "");
+  const descError = description.length > FORM_CONSTRAINTS.MAX_DESCRIPTION_LENGTH ? `Description must be ${FORM_CONSTRAINTS.MAX_DESCRIPTION_LENGTH} characters or less` : "";
 
   useEffect(() => {
     if (habit) {
@@ -36,8 +34,8 @@ export default function HabitFormModal({ isOpen, onClose, onSuccess, habit }: Ha
 
   const isFormValid = (): boolean => {
     if (!name.trim()) return false;
-    if (name.length > MAX_NAME_LENGTH) return false;
-    if (description.length > MAX_DESCRIPTION_LENGTH) return false;
+    if (name.length > FORM_CONSTRAINTS.MAX_NAME_LENGTH) return false;
+    if (description.length > FORM_CONSTRAINTS.MAX_DESCRIPTION_LENGTH) return false;
     return true;
   };
 
@@ -92,8 +90,8 @@ export default function HabitFormModal({ isOpen, onClose, onSuccess, habit }: Ha
               <label className="block text-sm font-medium text-slate-700">
                 Habit Name *
               </label>
-              <span className={`text-xs ${name.length > MAX_NAME_LENGTH * 0.9 ? "text-red-600 font-medium" : "text-slate-500"}`}>
-                {name.length}/{MAX_NAME_LENGTH}
+              <span className={`text-xs ${name.length > FORM_CONSTRAINTS.MAX_NAME_LENGTH * 0.9 ? "text-red-600 font-medium" : "text-slate-500"}`}>
+                {name.length}/{FORM_CONSTRAINTS.MAX_NAME_LENGTH}
               </span>
             </div>
             <input
@@ -102,7 +100,7 @@ export default function HabitFormModal({ isOpen, onClose, onSuccess, habit }: Ha
               onChange={(e) => setName(e.target.value)}
               onBlur={() => setTouched({ ...touched, name: true })}
               placeholder="e.g., Morning Jog"
-              maxLength={MAX_NAME_LENGTH}
+              maxLength={FORM_CONSTRAINTS.MAX_NAME_LENGTH}
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors text-slate-900 placeholder-slate-500 ${
                 nameError ? "border-red-300 focus:ring-red-600" : "border-slate-300 focus:ring-brand-600 focus:border-brand-600 hover:border-slate-400"
               }`}
@@ -115,15 +113,15 @@ export default function HabitFormModal({ isOpen, onClose, onSuccess, habit }: Ha
               <label className="block text-sm font-medium text-slate-700">
                 Description (optional)
               </label>
-              <span className={`text-xs ${description.length > MAX_DESCRIPTION_LENGTH * 0.9 ? "text-red-600 font-medium" : "text-slate-500"}`}>
-                {description.length}/{MAX_DESCRIPTION_LENGTH}
+              <span className={`text-xs ${description.length > FORM_CONSTRAINTS.MAX_DESCRIPTION_LENGTH * 0.9 ? "text-red-600 font-medium" : "text-slate-500"}`}>
+                {description.length}/{FORM_CONSTRAINTS.MAX_DESCRIPTION_LENGTH}
               </span>
             </div>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="e.g., 30 minutes at the park"
-              maxLength={MAX_DESCRIPTION_LENGTH}
+              maxLength={FORM_CONSTRAINTS.MAX_DESCRIPTION_LENGTH}
               rows={3}
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors text-slate-900 placeholder-slate-500 resize-none ${
                 descError ? "border-red-300 focus:ring-red-600" : "border-slate-300 focus:ring-brand-600 focus:border-brand-600 hover:border-slate-400"

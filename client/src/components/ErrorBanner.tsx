@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { ERROR_BANNER_TIMEOUT } from "../constants/config";
 
 interface ErrorBannerProps {
   message: string;
@@ -8,14 +9,18 @@ interface ErrorBannerProps {
 export default function ErrorBanner({ message, onDismiss }: ErrorBannerProps) {
   const [isVisible, setIsVisible] = useState(true);
 
+  const handleDismiss = useCallback(() => {
+    setIsVisible(false);
+    onDismiss();
+  }, [onDismiss]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
-      setIsVisible(false);
-      onDismiss();
-    }, 6000);
+      handleDismiss();
+    }, ERROR_BANNER_TIMEOUT);
 
     return () => clearTimeout(timer);
-  }, [onDismiss]);
+  }, [handleDismiss]);
 
   if (!isVisible) return null;
 
@@ -40,10 +45,7 @@ export default function ErrorBanner({ message, onDismiss }: ErrorBannerProps) {
             <p className="text-sm font-medium text-red-800">{message}</p>
           </div>
           <button
-            onClick={() => {
-              setIsVisible(false);
-              onDismiss();
-            }}
+            onClick={handleDismiss}
             className="flex-shrink-0 text-red-400 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 rounded"
           >
             <svg
